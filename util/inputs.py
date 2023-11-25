@@ -32,4 +32,16 @@ def process_input(input_data):
     if len(logic_arr) == 0:
         print("WARNING: No .LOGIC given")
 
-    return data_arr, logic_arr
+    return process_data(data_arr), process_logic(logic_arr)
+
+def process_data(data_arr):
+    output_arr = []
+    for data in data_arr:
+        output_arr.append(data.split())
+    return output_arr
+
+def process_logic(logic_arr):
+    output_arr = []
+    for state in logic_arr:
+        output_arr.append(state.split())
+    return output_arr

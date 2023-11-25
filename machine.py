@@ -1,6 +1,7 @@
 from memory.stack import STACK
 from memory.queue import QUEUE
-from memory.tape import TAPE, TAPE_2D
+from memory.tape import TAPE
+from memory.tape2d import TAPE_2D
 from util.state import State
 
 class Machine:
