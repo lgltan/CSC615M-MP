@@ -9,7 +9,7 @@ class Machine:
     stateList = []
     currentState = 0
 
-    def __init__(self, initialState):
+    def __init__(self, data_arr, logic_arr):
         self.initialState = initialState
         self.currentState = 0
         self.stateList.append(initialState)
