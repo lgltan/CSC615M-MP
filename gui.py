@@ -63,9 +63,9 @@ class GUI(ctk.CTk):
         for widget in self.run_frame.winfo_children():
             widget.destroy()
 
-        data_arr, logic_arr = process_input(self.tb_input.get("1.0",'end-1c'))
+        # data_arr, logic_arr = process_input(self.tb_input.get("1.0",'end-1c'))
         
-        self.machine = Machine(data_arr, logic_arr)
+        # self.machine = Machine(data_arr, logic_arr)
 
         # add input string text input and submit button
         self.input_string_label = ctk.CTkLabel(master=self.run_frame, text="Input String", font=("Roboto", 24), anchor=ctk.W)
