@@ -20,48 +20,44 @@ class Diagram:
         arrow_tag = f"arrows arrows_{start.name}"
 
         control_x = (start_x + end_x) / 2
-        control_y = (start_y + end_y) / 2 - 40  # Adjust the control point height as needed
+        control_y = (start_y + end_y) / 2 - 40
 
-        # Check if the arrow is pointing to the right (convex) or left (concave)
-        if end_x > start_x:
-            control_y = (start_y + end_y) / 2 + 40  # Adjust control point for convex curve
+        if end_x < start_x:
+            control_y = (start_y + end_y) / 2 + 40
 
         self.canvas.create_line(start_x, start_y, control_x, control_y, end_x, end_y, arrow=tk.LAST, smooth=tk.TRUE, tags=arrow_tag)
 
         # Calculate the position slightly above or below the midpoint based on arrow direction
         text_x = (start_x + end_x) / 2
-        text_y = (start_y + end_y) / 2 - 10  # Adjust the vertical offset for Bezier curve or straight line
+        text_y = (start_y + end_y) / 2 - 10
 
         # Adjust label position based on arrow direction and curve opening
-        if end_x > start_x:
-            text_y += 40  # Adjust text position for convex curve
-            # Place labels on top of each other
+        if end_x < start_x:
+            text_y += 40 
             for label in labels:
                 self.canvas.create_text(text_x, text_y, text=label, tags=f"arrow_label {arrow_tag}")
-                text_y += 10  # Adjust the vertical offset for multiple labels
+                text_y += 10
         else:
-            text_y -= 20  # Adjust text position for concave curve
-            # Place labels on top of each other
+            text_y -= 20
             for label in labels:
                 self.canvas.create_text(text_x, text_y, text=label, tags=f"arrow_label {arrow_tag}")
-                text_y -= 10  # Adjust the vertical offset for multiple labels
-
-        
-
+                text_y -= 10
 
     def draw_self_arrow(self, start, labels):
         start_x, start_y = start.x, start.y
-        control_x = start_x
-        control_y = start_y - 40  # Adjust the control point height as needed
-        end_x = start_x + 20
-        end_y = start_y
+        control_x = start_x - 15
+        control_y = start_y - 100  # Adjust the control point height as needed
+        angle = math.atan2(control_y - start_y, control_x - start_x)
+        arrow_length = 20
+        end_x = start_x + 15 + arrow_length * math.cos(angle)
+        end_y = start_y - 30 - arrow_length * math.sin(angle)
 
         # Use quadratic Bezier curve control point
         self.canvas.create_line(start_x, start_y, control_x, control_y, end_x, end_y, arrow=tk.LAST, smooth=tk.TRUE, tags=f"arrows arrows_{start.name}")
 
         # Calculate the position slightly above the midpoint of the Bezier curve
         text_x = (start_x + control_x + end_x) / 3
-        text_y = (start_y + control_y + end_y) / 3 - 10
+        text_y = (start_y + control_y + end_y) / 3 - 30
 
         # Place labels on top of each other
         for label in labels:
@@ -72,10 +68,11 @@ class Diagram:
     def create_circle(self, state):
         radius = 20
         self.canvas.create_oval(state.x - radius, state.y - radius, state.x + radius, state.y + radius, fill="lightblue", tags=f"circles circle_{state.name}")
-        
+        self.canvas.create_text(state.x, state.y, text=state.name, tags=f"circles circle_{state.name}")
         # Create a label beneath the circle
         if not state.transition_type:
-            label_id = self.canvas.create_text(state.x, state.y + radius + 10, text=state.transition_type, tags=f"circle_label circle_{state.name}")
+            self.canvas.create_text(state.x, state.y + radius + 10, text=f"{state.transition_type}-{state.memory_object}", tags=f"circles circle_{state.name}")
+
 
     def on_press(self, event, state):
         # Store the initial position of the state
