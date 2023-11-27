@@ -11,6 +11,10 @@ class Machine:
     memory = []
     stateList = []
     currentState = None
+    input_tape = []
+    current_input = 0
+    output_tape = []
+    current_output = 0
 
     def __init__(self, data_arr, logic_arr):
         # init auxiliary memory
@@ -128,33 +132,49 @@ class Machine:
         # Choose one next state nondeterministically
         if possible_next_states:
             next_state = random.choice(possible_next_states)
+            prevState = self.currentState
             self.currentState = next_state
 
-            if self.currentState.transition_type == "R":
+            if prevState.transition_type == "R":
                 for mem_obj in self.memory:
-                    if self.currentState.memory_object == mem_obj.name:
+                    if prevState.memory_object == mem_obj.name:
                         mem_obj.READ()
-                        print(mem_obj)
-            elif self.currentState.transition_type == "W":
+            elif prevState.transition_type == "W":
                 for mem_obj in self.memory:
-                    if self.currentState.memory_object == mem_obj.name:
-                        print(f"{next_state.name}: {next_state.transitions}")
-            elif self.currentState.transition_type == "SR":
-                pass
-            elif self.currentState.transition_type == "SL":
-                pass
-            elif self.currentState.transition_type == "S":
-                pass
-            elif self.currentState.transition_type == "P":
-                pass
-            elif self.currentState.transition_type == "UP":
-                pass
-            elif self.currentState.transition_type == "DOWN":
-                pass
-            elif self.currentState.transition_type == "LEFT":
-                pass
-            elif self.currentState.transition_type == "RIGHT":
-                pass
+                    if prevState.memory_object == mem_obj.name:
+                        mem_obj.WRITE(input_val)
+            elif prevState.transition_type == "SR":
+                for mem_obj in self.memory:
+                    if prevState.memory_object == mem_obj.name:
+                        mem_obj.SCAN_RIGHT()
+            elif prevState.transition_type == "SL":
+                for mem_obj in self.memory:
+                    if prevState.memory_object == mem_obj.name:
+                        mem_obj.SCAN_LEFT()
+            elif prevState.transition_type == "S":
+                for mem_obj in self.memory:
+                    if prevState.memory_object == mem_obj.name:
+                        mem_obj.SCAN()
+            elif prevState.transition_type == "P":
+                for mem_obj in self.memory:
+                    if prevState.memory_object == mem_obj.name:
+                        mem_obj.PRINT()
+            elif prevState.transition_type == "UP":
+                for mem_obj in self.memory:
+                    if prevState.memory_object == mem_obj.name:
+                        mem_obj.TAPE_UP(input_val)
+            elif prevState.transition_type == "DOWN":
+                for mem_obj in self.memory:
+                    if prevState.memory_object == mem_obj.name:
+                        mem_obj.TAPE_DOWN(input_val)
+            elif prevState.transition_type == "LEFT":
+                for mem_obj in self.memory:
+                    if prevState.memory_object == mem_obj.name:
+                        mem_obj.TAPE_LEFT(input_val)
+            elif prevState.transition_type == "RIGHT":
+                for mem_obj in self.memory:
+                    if prevState.memory_object == mem_obj.name:
+                        mem_obj.TAPE_RIGHT(input_val)
             else:
                 print(f"ERR: Invalid transition_type {self.currentState.transition_type}")
 
