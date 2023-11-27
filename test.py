@@ -30,7 +30,7 @@ def draw_arrow(canvas, start, end, labels):
         control_x = (start_x + end_x) / 2
         control_y = (start_y + end_y) / 2 - 40  # Adjust the control point height as needed
 
-        canvas.create_line(start_x, start_y, control_x, control_y, end_x, end_y, arrow=tk.LAST, smooth=tk.TRUE, tags=f"arrows_{start.name}")
+        canvas.create_line(start_x, start_y, control_x, control_y, end_x, end_y, arrow=tk.LAST, smooth=tk.TRUE, tags=f"arrows arrows_{start.name}")
 
         # Calculate the position slightly above the midpoint of the Bezier curve
         text_x = (start_x + 2 * control_x + end_x) / 4
@@ -38,11 +38,11 @@ def draw_arrow(canvas, start, end, labels):
 
         # Place labels on top of each other
         for label in labels:
-            canvas.create_text(text_x, text_y, text=label, tags=f"arrows_{start.name}")
+            canvas.create_text(text_x, text_y, text=label, tags=f"arrow_label arrows_{start.name}")
             text_y -= 10  # Adjust the vertical offset for multiple labels
     else:
         # Use a straight line
-        canvas.create_line(start_x, start_y, end_x, end_y, arrow=tk.LAST, tags=f"arrows_{start.name}")
+        canvas.create_line(start_x, start_y, end_x, end_y, arrow=tk.LAST, tags=f"arrows arrows_{start.name}")
 
         # Calculate the position slightly above the midpoint of the line
         text_x = (start_x + end_x) / 2
@@ -50,7 +50,7 @@ def draw_arrow(canvas, start, end, labels):
 
         # Place labels on top of each other
         for label in labels:
-            canvas.create_text(text_x, text_y, text=label, tags=f"arrows_{start.name}")
+            canvas.create_text(text_x, text_y, text=label, tags=f"arrow_label arrows_{start.name}")
             text_y -= 10  # Adjust the vertical offset for multiple labels
 
 def draw_self_arrow(canvas, start, labels):
@@ -60,50 +60,55 @@ def draw_self_arrow(canvas, start, labels):
     end_x = start_x + 20
     end_y = start_y
 
-    # Check if the self-arrow is tall enough to be visible
-    if calculate_overlap(start, start):
-        # Use quadratic Bezier curve control point
-        canvas.create_line(start_x, start_y, control_x, control_y, end_x, end_y, arrow=tk.LAST, smooth=tk.TRUE, tags=f"arrows_{start.name}")
+    # Use quadratic Bezier curve control point
+    canvas.create_line(start_x, start_y, control_x, control_y, end_x, end_y, arrow=tk.LAST, smooth=tk.TRUE, tags=f"arrows arrows_{start.name}")
 
-        # Calculate the position slightly above the midpoint of the Bezier curve
-        text_x = (start_x + control_x + end_x) / 3
-        text_y = (start_y + control_y + end_y) / 3 - 10
+    # Calculate the position slightly above the midpoint of the Bezier curve
+    text_x = (start_x + control_x + end_x) / 3
+    text_y = (start_y + control_y + end_y) / 3 - 10
 
-        # Place labels on top of each other
-        for label in labels:
-            canvas.create_text(text_x, text_y, text=label, tags=f"arrows_{start.name}")
-            text_y -= 10  # Adjust the vertical offset for multiple labels
-    else:
-        # Use a straight line
-        canvas.create_line(start_x, start_y, end_x, end_y, arrow=tk.LAST, tags=f"arrows_{start.name}")
+    # Place labels on top of each other
+    for label in labels:
+        canvas.create_text(text_x, text_y, text=label, tags=f"arrow_label arrows_{start.name}")
+        text_y -= 10  # Adjust the vertical offset for multiple labels
 
-        # Calculate the position slightly above the midpoint of the line
-        text_x = (start_x + end_x) / 2
-        text_y = (start_y + end_y) / 2 - 10
-
-        # Place labels on top of each other
-        for label in labels:
-            canvas.create_text(text_x, text_y, text=label, tags=f"arrows_{start.name}")
-            text_y -= 10  # Adjust the vertical offset for multiple labels
 
 def create_circle(canvas, state):
     canvas.create_oval(state.x - 20, state.y - 20, state.x + 20, state.y + 20, fill="lightblue", tags=f"circles circle_{state.name}")
     canvas.create_text(state.x, state.y, text=state.name, tags=f"circles circle_{state.name}")
 
-def on_drag(event, state):
-    state.x = event.x
-    state.y = event.y
-    canvas.delete(f"arrows_{state.name}")
+def on_press(event, state):
+    # Store the initial position of the state
+    state.start_x = event.x
+    state.start_y = event.y
+
+def on_release(event, state):
+    # Calculate the change in position
+    delta_x = event.x - state.start_x
+    delta_y = event.y - state.start_y
+
+    # Update the state's position
+    state.x += delta_x
+    state.y += delta_y
+
     draw_arrows(canvas)
     draw_states(canvas)
 
 def draw_states(canvas):
+    # delete all states first before redrawing them
+    for state in states:
+        canvas.delete(f"circle_{state.name}")
+
     for state in states:
         create_circle(canvas, state)
-        canvas.tag_bind(f"circle_{state.name}", "<B1-Motion>", lambda event, s=state: on_drag(event, s))
+        # Bind press and release events to the on_press and on_release functions
+        canvas.tag_bind(f"circle_{state.name}", "<ButtonPress-1>", lambda event, s=state: on_press(event, s))
+        canvas.tag_bind(f"circle_{state.name}", "<ButtonRelease-1>", lambda event, s=state: on_release(event, s))
 
 def draw_arrows(canvas):
     canvas.delete("arrows")
+    canvas.delete("arrow_label")
+    
     for i in range(len(states)):
         start_state = states[i]
         end_state = states[(i + 1) % len(states)]
