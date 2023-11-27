@@ -38,25 +38,24 @@ class GUI(ctk.CTk):
         self.run_frame.pack(pady=0, padx=0, fill="both", expand=True)
 
     def get_string_input(self):
+        # if new string input needed, make sure to reset machine
+        #       get string input
+        #       call run()
+        # submit string input to machine
         return
 
     def iterate_next(self):
         return
 
-    def iterate_prev(self):
-        return
-
-    def iterate_reset(self):
-        return
-
     def update_input_tape(self):
+        # input tape textbox = input tape
         return
 
     def update_output_tape(self):
+        # output tape textbox = output tape
         return
 
     def generate_state_diagram(self):
-
         # Create canvas
         canvas = tk.Canvas(self.state_diagram_frame, height=740, width=800, bg="white")
         canvas.pack(expand=True, fill="both")
@@ -66,8 +65,6 @@ class GUI(ctk.CTk):
         # Draw initial state
         diagram.draw_arrows()
         diagram.draw_states()
-
-        return
 
     def run(self):
         for widget in self.run_frame.winfo_children():
@@ -82,18 +79,8 @@ class GUI(ctk.CTk):
         self.input_string_label.pack(pady=2)
         self.input_string_tb = ctk.CTkTextbox(master=self.run_frame, width=600, height=20)
         self.input_string_tb.pack(pady=10)
-
-        # add step iterator for input string step-by-step processing
-        self.iterator_frame = ctk.CTkFrame(master=self.run_frame)
-        self.iterator_frame.pack(pady=5, padx=5)
-        self.iterator_prev_button = ctk.CTkButton(master=self.iterator_frame, text="< Previous", command=self.iterate_prev)
-        self.iterator_prev_button.pack(pady=5, padx=2, side=ctk.LEFT)
-        self.input_string_button = ctk.CTkButton(master=self.iterator_frame, text="Submit", command=self.get_string_input)
-        self.input_string_button.pack(pady=5, padx=2, side=ctk.LEFT)
-        self.iterator_reset_button = ctk.CTkButton(master=self.iterator_frame, text="Reset", command=self.iterate_reset)
-        self.iterator_reset_button.pack(pady=5, padx=2, side=ctk.LEFT)
-        self.iterator_next_button = ctk.CTkButton(master=self.iterator_frame, text="Next >", command=self.iterate_next)
-        self.iterator_next_button.pack(pady=5, padx=2, side=ctk.LEFT)
+        self.input_string_button = ctk.CTkButton(master=self.run_frame, text="Submit", command=self.get_string_input)
+        self.input_string_button.pack(pady=2)
 
         # TO DO: add memory segment text input per memory stack specified
 
@@ -103,6 +90,8 @@ class GUI(ctk.CTk):
         self.input_tape_label.pack(pady=2)
         self.input_tape_tb = ctk.CTkTextbox(master=self.run_frame, width=600, height=20)
         self.input_tape_tb.pack(pady=10)
+        self.iterator_next_button = ctk.CTkButton(master=self.run_frame, text="Next State", command=self.iterate_next)
+        self.iterator_next_button.pack(pady=2)
 
         # add output tape
         self.output_tape_label = ctk.CTkLabel(master=self.run_frame, text="Output Tape", font=("Roboto", 24), anchor=ctk.W)

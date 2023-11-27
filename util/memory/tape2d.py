@@ -1,56 +1,45 @@
 class TAPE_2D:
-    def __init__(self, name):
+    def __init__(self, name, rows, cols):
         self.name = name
-        self.tape = []
-        self.tape_x = 0
-        self.tape_y = 0
+        self.tape = [['#' for _ in range(cols)] for _ in range(rows)]
+        self.current_row = 0
+        self.current_col = 0
 
     def EMPTY(self):
-        self.tape = []
-        self.tape_x = 0
+        return self.tape[self.current_row][self.current_col] == '#'
 
     def SCAN_LEFT(self):
-        # if tape head is at 0
-        if self.tape_x <= 0:
-            self.tape_x = 0
-            self.tape.insert(0, "#")
-        else:
-            self.tape_x = self.tape_x - 1
-        
-        return self.tape[self.tape_x]
-    
+        self.current_col -= 1
+        if self.current_col < 0:
+            self.current_col = 0
+
     def SCAN_RIGHT(self):
-        self.tape_x = self.tape_x + 1
-
-        if len(self.tape) < self.tape_x + 1:
-            self.tape.append("#")
-
-        return self.tape[self.tape_x]
-        
+        self.current_col += 1
+        if self.current_col >= len(self.tape[0]):
+            self.current_col = len(self.tape[0]) - 1
 
     def TAPE_RIGHT(self, input_val):
-        self.tape_x = self.tape_x + 1
-
-        if len(self.tape) < self.tape_x + 1:
-            self.tape.append("#")
-        
-        self.tape[self.tape_x] = input_val
-        
-        return self.tape[self.tape_x]
+        self.current_col += 1
+        if self.current_col >= len(self.tape[0]):
+            self.tape[0].append(input_val)
 
     def TAPE_LEFT(self, input_val):
-        if self.tape_x <= 0:
-            self.tape_x = 0
-            self.tape.insert(0, "#")
-        else:
-            self.tape_x = self.tape_x - 1
+        self.current_col -= 1
+        if self.current_col < 0:
+            self.tape[0].insert(0, input_val)
+            self.current_col = 0
 
-        self.tape[self.tape_x] = input_val
-        
-        return self.tape[self.tape_x]
+    def TAPE_UP(self, input_val):
+        self.current_row -= 1
+        if self.current_row < 0:
+            self.tape.insert(0, [input_val for _ in range(len(self.tape[0]))])
+            self.current_row = 0
 
-    def TAPE_UP():
-        return
+    def TAPE_DOWN(self, input_val):
+        self.current_row += 1
+        if self.current_row >= len(self.tape):
+            self.tape.append([input_val for _ in range(len(self.tape[0]))])
 
-    def TAPE_DOWN():
-        return
+    def print_tape(self):
+        for row in self.tape:
+            print(' '.join(row))
