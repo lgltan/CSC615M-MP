@@ -1,7 +1,9 @@
 import customtkinter as ctk
+import tkinter as tk
 
 from util.inputs import process_input
-from machine import Machine
+from util.machine import Machine
+from util.generate_diagram import Diagram
 
 class GUI(ctk.CTk):
     def __init__(self):
@@ -54,18 +56,26 @@ class GUI(ctk.CTk):
         return
 
     def generate_state_diagram(self):
-        self.machine
+
+        # Create canvas
+        canvas = tk.Canvas(self.state_diagram_frame, height=740, width=800, bg="white")
+        canvas.pack(expand=True, fill="both")
+
+        diagram = Diagram(self.machine, canvas)
+
+        # Draw initial state
+        diagram.draw_arrows()
+        diagram.draw_states()
+
         return
 
     def run(self):
-        self.machine = None
-
         for widget in self.run_frame.winfo_children():
             widget.destroy()
 
-        # data_arr, logic_arr = process_input(self.tb_input.get("1.0",'end-1c'))
+        data_arr, logic_arr = process_input(self.tb_input.get("1.0",'end-1c'))
         
-        # self.machine = Machine(data_arr, logic_arr)
+        self.machine = Machine(data_arr, logic_arr)
 
         # add input string text input and submit button
         self.input_string_label = ctk.CTkLabel(master=self.run_frame, text="Input String", font=("Roboto", 24), anchor=ctk.W)
@@ -103,15 +113,16 @@ class GUI(ctk.CTk):
         # add state diagram
         self.state_diagram_label = ctk.CTkLabel(master=self.run_frame, text="State Diagram", font=("Roboto", 24), anchor=ctk.W)
         self.state_diagram_label.pack(pady=2)
-        self.state_diagram_frame = ctk.CTkScrollableFrame(
+        self.state_diagram_frame = ctk.CTkFrame(
             master=self.run_frame,
-            orientation="vertical", 
-            label_anchor = "w",
-            height=500,
-            width=800,
-            fg_color="azure1"
+            height=600,
+            width=800
         )
 
-        self.state_diagram_frame.pack(pady=4)
+        self.state_diagram_frame.pack()
+
+        self.state_diagram_label = ctk.CTkLabel(master=self.run_frame, text="*Drag nodes around by holding down left click on a node, and releasing it at the desired position.", font=("Roboto", 12), anchor=ctk.W)
+        self.state_diagram_label.pack(pady=2)
+
         self.generate_state_diagram()
         return

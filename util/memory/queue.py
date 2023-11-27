@@ -1,6 +1,6 @@
 class QUEUE:
-    def __init__(self, queue_name):
-        self.queue_name = queue_name
+    def __init__(self, name):
+        self.name = name
         self.queue = []
 
     def EMPTY(self):
@@ -8,7 +8,7 @@ class QUEUE:
     
     def READ(self):
         if len(self.queue) == 0:
-            print(f"QUEUE ERROR: {self.queue_name} is empty and cannot be read.")
+            print(f"QUEUE ERROR: {self.name} is empty and cannot be read.")
             return
         return self.queue.pop(0)
 

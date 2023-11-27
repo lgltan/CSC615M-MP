@@ -9,9 +9,38 @@ class State:
         self.connections = {}
 
 def calculate_overlap(start, end):
-    # Calculate the distance between the centers of the two states
-    distance = math.sqrt((end.x - start.x)**2 + (end.y - start.y)**2)
-    return distance < 40  # Adjust the threshold as needed
+    # Calculate direction vector s
+    s = (end.x - start.x, end.y - start.y)
+    
+    # Check if the lines are parallel
+    if s[0] == 0 and s[1] == 0:
+        # Lines are coincident, consider them overlapping
+        return True
+    
+    # Calculate parameter intervals for the two line segments
+    t_start1 = 0
+    t_end1 = 1
+    t_start2 = 0
+    t_end2 = 1
+    
+    # If the lines are not parallel, calculate the parameter intervals
+    if s[0] != 0:
+        t_start1 = (5 - start.x) / s[0]
+        t_end1 = (10 - start.x) / s[0]
+        t_start2 = (7 - start.x) / s[0]
+        t_end2 = (12 - start.x) / s[0]
+    elif s[1] != 0:
+        t_start1 = (5 - start.y) / s[1]
+        t_end1 = (10 - start.y) / s[1]
+        t_start2 = (7 - start.y) / s[1]
+        t_end2 = (12 - start.y) / s[1]
+    
+    # Find the overlap interval
+    overlap_start = max(t_start1, t_start2)
+    overlap_end = min(t_end1, t_end2)
+    
+    # Check if there is an overlap
+    return overlap_start <= overlap_end
 
 def draw_arrow(canvas, start, end, labels):
     start_x, start_y = start.x, start.y
@@ -25,6 +54,7 @@ def draw_arrow(canvas, start, end, labels):
     # Check if the arrows are pointing in opposite directions and overlap
     dot_product = (start_x - end_x) * (start_x - end_x) + (start_y - end_y) * (start_y - end_y)
     opposite_directions = dot_product < 0 and calculate_overlap(start, end)
+
     if opposite_directions:
         # Use quadratic Bezier curve control point
         control_x = (start_x + end_x) / 2
@@ -108,7 +138,7 @@ def draw_states(canvas):
 def draw_arrows(canvas):
     canvas.delete("arrows")
     canvas.delete("arrow_label")
-    
+
     for i in range(len(states)):
         start_state = states[i]
         end_state = states[(i + 1) % len(states)]
@@ -134,7 +164,7 @@ C = State("C", 350, 150)
 
 # Define connections
 A.connections = {B: ["x", "z"]}  # Multiple characters for the same connection
-B.connections = {C: ["z", "b", "a"]}  # Additional self-connection with "b" and "a"
+B.connections = {C: ["z", "b", "a"], A: ["x"]}  # Additional self-connection with "b" and "a"
 C.connections = {A: ["z", "y"], B: ["x", "b"]}  # Connection from C to A and C to B to create overlapping arrows
 
 # Store states in a list

@@ -1,6 +1,6 @@
 class TAPE_2D:
-    def __init__(self, tape_name):
-        self.tape_name = tape_name
+    def __init__(self, name):
+        self.name = name
         self.tape = []
         self.tape_x = 0
         self.tape_y = 0

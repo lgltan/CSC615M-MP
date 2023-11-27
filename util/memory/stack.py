@@ -1,6 +1,6 @@
 class STACK:
-    def __init__(self, stack_name):
-        self.stack_name = stack_name
+    def __init__(self, name):
+        self.name = name
         self.stack = []
 
     def EMPTY(self):
@@ -8,7 +8,7 @@ class STACK:
     
     def READ(self):
         if len(self.stack) == 0:
-            print(f"STACK ERROR: {self.stack_name} is empty and cannot be read.")
+            print(f"STACK ERROR: {self.name} is empty and cannot be read.")
             return
         return self.stack.pop()
 
