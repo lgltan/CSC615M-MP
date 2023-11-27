@@ -16,4 +16,10 @@ class State:
     def addTransition(self, readChar, writeChar=None):
         if writeChar == None:
             writeChar = readChar
-        self.transitions[readChar] = writeChar
+        
+        if readChar in self.transitions:
+            # If the readChar already exists, append the new writeChar to the existing list
+            self.transitions[readChar].append(writeChar)
+        else:
+            # If the readChar is new, create a new list with the writeChar
+            self.transitions[readChar] = [writeChar]
