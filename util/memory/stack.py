@@ -1,10 +1,10 @@
 class STACK:
     def __init__(self, name):
         self.name = name
-        self.stack = ['#']
+        self.stack = []
 
     def EMPTY(self):
-        self.stack = ['#']
+        self.stack = []
     
     def READ(self):
         if len(self.stack) == 0:
@@ -25,7 +25,7 @@ class STACK:
         return "STACK"
 
     def reset(self):
-        self.stack = ['#']
+        self.stack = []
     
     def reset_pos(self):
         pass

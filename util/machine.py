@@ -40,6 +40,7 @@ class Machine:
         
         if self.input_tape == None:
             self.input_tape = TAPE("input_tape")
+            self.memory.append(self.input_tape)
 
         found_accept = [string for string in logic_arr if "accept" in string]
 

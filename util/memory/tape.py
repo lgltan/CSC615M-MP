@@ -1,7 +1,7 @@
 class TAPE:
     def __init__(self, name):
         self.name = name
-        self.tape = ['#']
+        self.tape = []
         self.current_position = 0
 
     def get_current_symbol(self):
@@ -49,7 +49,7 @@ class TAPE:
         return "TAPE"
 
     def reset(self):
-        self.tape = ['#']
+        self.tape = []
     
     def reset_pos(self):
         self.current_position = 0

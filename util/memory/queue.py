@@ -1,10 +1,10 @@
 class QUEUE:
     def __init__(self, name):
         self.name = name
-        self.queue = ['#']
+        self.queue = []
 
     def EMPTY(self):
-        self.queue = ['#']
+        self.queue = []
     
     def READ(self):
         if len(self.queue) == 0:
@@ -25,7 +25,7 @@ class QUEUE:
         return "QUEUE"
 
     def reset(self):
-        self.stack = ['#']
+        self.stack = []
     
     def reset_pos(self):
         pass

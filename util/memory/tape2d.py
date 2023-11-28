@@ -1,7 +1,7 @@
 class TAPE_2D:
     def __init__(self, name):
         self.name = name
-        self.tape = [['#']]
+        self.tape = [[]]
         self.current_row = 0
         self.current_col = 0
 
@@ -83,7 +83,7 @@ class TAPE_2D:
         return "TAPE_2D"
 
     def reset(self):
-        self.tape = [['#']]
+        self.tape = [[]]
 
     def reset_pos(self):
         self.current_row = 0
