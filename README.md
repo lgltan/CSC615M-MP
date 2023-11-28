@@ -8,9 +8,6 @@ Custom Tkinter is already included in the zip file.
 # Running the program:
 To run the program, simply run the main.py file in the root directory.
 
-### Additional Notes:
-To test individual parts of the program, use test.ipynb
-
 # Using the program:
 1. Enter the input specifications in the first textbox labelled as "Input Specifications" then press the "Run" button
 
