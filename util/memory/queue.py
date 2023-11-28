@@ -15,5 +15,5 @@ class QUEUE:
     def WRITE(self, write_val):
         self.queue.append(write_val)
 
-    def SCAN(self):
-        return self.queue[0]
+    def get_type(self):
+        return "QUEUE"

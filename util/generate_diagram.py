@@ -69,9 +69,13 @@ class Diagram:
         radius = 20
         self.canvas.create_oval(state.x - radius, state.y - radius, state.x + radius, state.y + radius, fill="lightblue", tags=f"circles circle_{state.name}")
         self.canvas.create_text(state.x, state.y, text=state.name, tags=f"circles circle_{state.name}")
-        # Create a label beneath the circle
-        if not state.transition_type:
+        # Create a label beneath the circle if state has a transition_type
+        if state.transition_type and state.memory_object:
             self.canvas.create_text(state.x, state.y + radius + 10, text=f"{state.transition_type}-{state.memory_object}", tags=f"circles circle_{state.name}")
+        elif state.transition_type:
+            self.canvas.create_text(state.x, state.y + radius + 10, text=f"{state.transition_type}", tags=f"circles circle_{state.name}")
+        elif state.memory_object:
+            self.canvas.create_text(state.x, state.y + radius + 10, text=f"{state.memory_object}", tags=f"circles circle_{state.name}")
 
 
     def on_press(self, event, state):

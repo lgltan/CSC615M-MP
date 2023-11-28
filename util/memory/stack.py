@@ -13,8 +13,7 @@ class STACK:
         return self.stack.pop()
 
     def WRITE(self, write_val):
-        print(write_val)
         self.stack.append(write_val)
 
-    def SCAN(self):
-        return self.stack[-1]
+    def get_type(self):
+        return "STACK"

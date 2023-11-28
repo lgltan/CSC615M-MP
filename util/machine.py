@@ -74,15 +74,15 @@ class Machine:
             else:
                 print(f"ERR: No transition found in {logic}")
 
-            state = State(stateName=state_name, transition_type=transition_type, memory_object=memory_object)
-
             # get only strings surrounded by parenthesis
             in_parenthesis = re.findall(r'\((.*?)\)', logic)
 
             # get memory object
             if "READ" in logic or "WRITE" in logic or "RIGHT" in logic or "LEFT" in logic or "UP" in logic or "DOWN" in logic:
-                state.memory_object = in_parenthesis[0]
+                memory_object = in_parenthesis[0]
                 in_parenthesis.remove(in_parenthesis[0])
+
+            state = State(stateName=state_name, transition_type=transition_type, memory_object=memory_object)
 
             for transition in in_parenthesis:
                 temp_str = transition.replace(" ", "")
@@ -95,11 +95,26 @@ class Machine:
             # initialize currentState
             if self.currentState == None:
                 self.currentState = state
+                self.initial_state = self.currentState
 
     def addState(self, state):
         self.stateList.append(state)
 
-    def next_input(self, input_val):
+    def reset(self):
+        self.currentState = self.initial_state
+        self.input_tape = []
+        self.current_input = 0
+        self.output_tape = []
+        self.current_output = 0
+
+    def get_state_memory_obj(self):
+        for mem_obj in self.memory:
+            if mem_obj.name == self.currentState.memory_object:
+                return mem_obj
+        print("ERR: Memory Object not found")
+        return None
+
+    def next_state(self):
         # Check if the current state is accepting or rejecting
         if self.currentState.name == "accept":
             print("Machine has accepted the input.")
@@ -107,81 +122,88 @@ class Machine:
         elif self.currentState.name == "reject":
             print("Machine has rejected the input.")
             return False
-        
-        # Check if the input value is a valid transition for the current state
+
+        # tuples of the destination state, transition char
+        possible_states = []
+
+        current_mem_obj = self.get_state_memory_obj()
         valid_input = False
 
-        for transition_key, transition_val in self.currentState.transitions.items():
-            if input_val in transition_val:
-                valid_input = True
+        # get all possible next states for NDA
+        if self.currentState.transition_type == "R":
+            read_char = current_mem_obj.READ()
+            for t_key, t_val in self.currentState.transitions.items():
+                for val in t_val:
+                    if read_char == val:
+                        valid_input = True
+                        possible_states.append((t_key, val))
+        elif self.currentState.transition_type == "W":
+            for t_key, t_val in self.currentState.transitions.items():
+                if t_key: # if the transition destination exists
+                    valid_input = True
+                    possible_states.append((t_key, t_val))
+        elif self.currentState.transition_type == "S" or self.currentState.transition_type == "SR":
+            scan_char = self.input_tape[self.current_input + 1]
+            for t_key, t_val in self.currentState.transitions.items():
+                for val in t_val:
+                    if scan_char == val:
+                        valid_input = True
+                        possible_states.append((t_key, val))
+        elif self.currentState.transition_type == "SL":
+            scan_char = self.input_tape[self.current_input - 1]
+            for t_key, t_val in self.currentState.transitions.items():
+                for val in t_val:
+                    if scan_char == val:
+                        valid_input = True
+                        possible_states.append((t_key, val))
+        elif self.currentState.transition_type == "P":
+            for t_key, t_val in self.currentState.transitions.items():
+                if t_key: # if the transition destination exists
+                    valid_input = True
+                    possible_states.append((t_key, t_val))
+        elif self.currentState.transition_type == "RIGHT":
+            current_mem_obj.move_right()
+            tape_char = current_mem_obj.get_current_symbol()
 
+            for t_key, t_val in self.currentState.transitions.items():
+                for val in t_val:
+                    if tape_char == val:
+                        valid_input = True
+                        possible_states.append((t_key, val))
+
+        # reject if invalid input
         if not valid_input:
             for state in self.stateList:
                 if state.name == "reject":
                     self.currentState = state
+            return False
 
-        # Get all possible next states for the input value
-        possible_next_states = []
-
-        for state_key, state_val in self.currentState.transitions.items():
-            if input_val in state_val:
-                for state in self.stateList:
-                    if state.name == state_key:
-                        possible_next_states.append(state)
-
-        # Choose one next state nondeterministically
-        if possible_next_states:
-            next_state = random.choice(possible_next_states)
-            prevState = self.currentState
-            self.currentState = next_state
-
-            if prevState.transition_type == "R":
-                for mem_obj in self.memory:
-                    if prevState.memory_object == mem_obj.name:
-                        mem_obj.READ()
-            elif prevState.transition_type == "W":
-                for mem_obj in self.memory:
-                    if prevState.memory_object == mem_obj.name:
-                        mem_obj.WRITE(input_val)
-            elif prevState.transition_type == "SR":
-                for mem_obj in self.memory:
-                    if prevState.memory_object == mem_obj.name:
-                        mem_obj.SCAN_RIGHT()
-            elif prevState.transition_type == "SL":
-                for mem_obj in self.memory:
-                    if prevState.memory_object == mem_obj.name:
-                        mem_obj.SCAN_LEFT()
-            elif prevState.transition_type == "S":
-                for mem_obj in self.memory:
-                    if prevState.memory_object == mem_obj.name:
-                        mem_obj.SCAN()
-            elif prevState.transition_type == "P":
-                for mem_obj in self.memory:
-                    if prevState.memory_object == mem_obj.name:
-                        mem_obj.PRINT()
-            elif prevState.transition_type == "UP":
-                for mem_obj in self.memory:
-                    if prevState.memory_object == mem_obj.name:
-                        mem_obj.TAPE_UP(input_val)
-            elif prevState.transition_type == "DOWN":
-                for mem_obj in self.memory:
-                    if prevState.memory_object == mem_obj.name:
-                        mem_obj.TAPE_DOWN(input_val)
-            elif prevState.transition_type == "LEFT":
-                for mem_obj in self.memory:
-                    if prevState.memory_object == mem_obj.name:
-                        mem_obj.TAPE_LEFT(input_val)
-            elif prevState.transition_type == "RIGHT":
-                for mem_obj in self.memory:
-                    if prevState.memory_object == mem_obj.name:
-                        mem_obj.TAPE_RIGHT(input_val)
-            else:
-                print(f"ERR: Invalid transition_type {self.currentState.transition_type}")
-
-            # Return True if the machine is still in a valid state, False otherwise
-            return not (self.currentState.name == "accept" or self.currentState.name == "reject")
+        # NDA implementation: choose the next state randomly
+        if possible_states:
+            next_state = random.choice(possible_states)
         else:
-            for state in self.stateList:
-                if state.name == "reject":
-                    self.currentState = state
-            print(f"Error: No valid transition for input '{input_val}' in state '{self.currentState.name}'.")
+            return False
+        
+        if self.currentState.transition_type == "R":
+            current_mem_obj.READ()
+        elif self.currentState.transition_type == "W":
+            current_mem_obj.WRITE(next_state[1])
+        elif self.currentState.transition_type == "S" or self.currentState.transition_type == "SR":
+            self.current_input = self.current_input + 1
+        elif self.currentState.transition_type == "SL":
+            self.current_input = self.current_input - 1
+        elif self.currentState.transition_type == "P":
+            self.output_tape.append(next_state[1])
+        elif self.currentState.transition_type == "RIGHT":
+            current_mem_obj.RIGHT(next_state[1])
+        elif self.currentState.transition_type == "LEFT":
+            current_mem_obj.LEFT(next_state[1])
+        elif self.currentState.transition_type == "UP":
+            current_mem_obj.UP(next_state[1])
+        elif self.currentState.transition_type == "DOWN":
+            current_mem_obj.DOWN(next_state[1])
+
+        # update current state to the next state
+        for state in self.stateList:
+            if state.name == next_state[0]:
+                self.currentState = state

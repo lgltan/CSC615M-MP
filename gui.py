@@ -38,22 +38,54 @@ class GUI(ctk.CTk):
         self.run_frame.pack(pady=0, padx=0, fill="both", expand=True)
 
     def get_string_input(self):
-        # if new string input needed, make sure to reset machine
-        #       get string input
-        #       call run()
-        # submit string input to machine
-        return
-
+        input_string = self.input_string_tb.get("1.0",'end-1c')
+        self.machine.reset()
+        self.machine.input_tape = [char for char in input_string]
+        
+        self.update_input_tape()
+        self.update_output_tape()
+        
     def iterate_next(self):
-        return
+        self.machine.next_state()
+        self.update_mem_tapes()
+        self.update_input_tape()
+        self.update_output_tape()
+        self.current_state_label.configure(text=f"Current State: {self.machine.currentState.name}")
+
+    def update_mem_tapes(self):
+        for _id, mem_tape in enumerate(self.aux_mem_list):
+            if self.machine.memory[_id].get_type() == "TAPE_2D":
+                mem_tape[1].delete("1.0", tk.END)
+                if 0 <= current_input < len(self.machine.input_tape):
+                    input_text = self.machine.memory[_id].tape[self.machine.memory[_id].current_row].copy()
+                    input_text[self.machine.memory[_id].current_col] = f"|{self.machine.memory[_id].tape[self.machine.memory[_id].current_row][self.machine.memory[_id].current_col]}|"
+                    self.input_tape_tb.insert(tk.END, ''.join(input_text))
+            elif self.machine.memory[_id].get_type() == "TAPE":
+                mem_tape[1].delete("1.0", tk.END)
+                if 0 <= current_input < len(self.machine.input_tape):
+                    input_text = self.machine.memory[_id].tape.copy()
+                    input_text[self.machine.memory[_id].current_position] = f"|{self.machine.memory[_id].current_position}|"
+                    self.input_tape_tb.insert(tk.END, ''.join(input_text))
+            elif self.machine.memory[_id].get_type() == "STACK":
+                mem_tape[1].delete("1.0", tk.END)
+                self.input_tape_tb.insert(tk.END, ''.join(self.machine.memory[_id].stack))
+            elif self.machine.memory[_id].get_type() == "QUEUE":
+                mem_tape[1].delete("1.0", tk.END)
+                self.input_tape_tb.insert(tk.END, ''.join(self.machine.memory[_id].QUEUE))
 
     def update_input_tape(self):
-        # input tape textbox = input tape
-        return
+        self.input_tape_tb.delete("1.0", tk.END)
+        if 0 <= self.machine.current_input < len(self.machine.input_tape):
+            input_text = self.machine.input_tape.copy()
+            input_text[self.machine.current_input] = f"|{self.machine.input_tape[self.machine.current_input]}|"
+            self.input_tape_tb.insert(tk.END, ''.join(input_text))
 
     def update_output_tape(self):
-        # output tape textbox = output tape
-        return
+        self.output_tape_tb.delete("1.0", tk.END)
+        if 0 <= self.machine.current_output < len(self.machine.output_tape):
+            output_text = self.machine.output_tape.copy()
+            output_text[self.machine.current_output] = f"|{self.machine.output_tape[self.machine.current_output]}|"
+            self.output_tape_tb.insert(tk.END, ''.join(output_text))
 
     def generate_state_diagram(self):
         # Create canvas
@@ -82,9 +114,6 @@ class GUI(ctk.CTk):
         self.input_string_button = ctk.CTkButton(master=self.run_frame, text="Submit", command=self.get_string_input)
         self.input_string_button.pack(pady=2)
 
-        # TO DO: add memory segment text input per memory stack specified
-
-
         # add input tape
         self.input_tape_label = ctk.CTkLabel(master=self.run_frame, text="Input Tape", font=("Roboto", 24), anchor=ctk.W)
         self.input_tape_label.pack(pady=2)
@@ -96,8 +125,22 @@ class GUI(ctk.CTk):
         # add output tape
         self.output_tape_label = ctk.CTkLabel(master=self.run_frame, text="Output Tape", font=("Roboto", 24), anchor=ctk.W)
         self.output_tape_label.pack(pady=2)
-        self.output_tape_tb = ctk.CTkTextbox(master=self.run_frame, width=600, height=20)
+        self.output_tape_tb = ctk.CTkTextbox(master=self.run_frame, width=600, height=20, state="disabled")
         self.output_tape_tb.pack(pady=10)
+
+        # add memory segment text input per memory stack specified
+        self.aux_mem_list = []
+        
+        for aux_mem in self.machine.memory:
+            aux_mem_label = ctk.CTkLabel(master=self.run_frame, text=aux_mem.name, font=("Roboto", 24), anchor=ctk.W)
+            aux_mem_label.pack(pady=2)
+            aux_mem_tb = ctk.CTkTextbox(master=self.run_frame, width=600, height=20, state="disabled")
+            aux_mem_tb.pack(pady=10)
+
+            self.aux_mem_list.append((aux_mem_label, aux_mem_tb))
+
+        self.current_state_label = ctk.CTkLabel(master=self.run_frame, text="Current State: None", font=("Roboto", 16), anchor=ctk.W)
+        self.current_state_label.pack(pady=2)
 
         # add state diagram
         self.state_diagram_label = ctk.CTkLabel(master=self.run_frame, text="State Diagram", font=("Roboto", 24), anchor=ctk.W)
@@ -114,4 +157,4 @@ class GUI(ctk.CTk):
         self.state_diagram_label.pack(pady=2)
 
         self.generate_state_diagram()
-        return
+        self.button.configure(state="disabled")
