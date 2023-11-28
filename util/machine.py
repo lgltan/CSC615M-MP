@@ -121,7 +121,6 @@ class Machine:
         return None
 
     def next_state(self):
-        print(f"Current State: {self.currentState.name}")
         # Check if the current state is accepting or rejecting
         if self.currentState.name == "accept":
             print("Machine has accepted the input.")
@@ -155,7 +154,7 @@ class Machine:
                     possible_states.append((t_key, t_val))
         elif self.currentState.transition_type == "S" or self.currentState.transition_type == "SR":
             self.current_input = self.current_input + 1
-            scan_char = self.input_tape.move_right()
+            scan_char = self.input_tape.tape[self.current_input]
             for t_key, t_val in self.currentState.transitions.items():
                 for val in t_val:
                     if scan_char == val:
@@ -163,7 +162,7 @@ class Machine:
                         possible_states.append((t_key, val))
         elif self.currentState.transition_type == "SL":
             self.current_input = self.current_input - 1
-            scan_char = self.input_tape.move_left()
+            scan_char = self.input_tape.tape[self.current_input]
             for t_key, t_val in self.currentState.transitions.items():
                 for val in t_val:
                     if scan_char == val:
@@ -175,8 +174,43 @@ class Machine:
                     valid_input = True
                     possible_states.append((t_key, t_val))
         elif self.currentState.transition_type == "RIGHT":
+            if self.currentState.memory_object == self.input_tape.name:
+                self.current_input = self.current_input + 1
             tape_char = current_mem_obj.move_right()
             current_mem_obj.move_left() # reset position for later
+
+            for t_key, t_val in self.currentState.transitions.items():
+                for val in t_val:
+                    temp_val = val.split("/")
+                    if tape_char == temp_val[0]: # if tape char == the symbol
+                        valid_input = True
+                        possible_states.append((t_key, val))
+        elif self.currentState.transition_type == "LEFT":
+            if self.currentState.memory_object == self.input_tape.name:
+                self.current_input = self.current_input - 1
+
+            tape_char = current_mem_obj.move_left()
+            current_mem_obj.move_right() # reset position for later
+
+            for t_key, t_val in self.currentState.transitions.items():
+                for val in t_val:
+                    temp_val = val.split("/")
+                    if tape_char == temp_val[0]: # if tape char == the symbol
+                        valid_input = True
+                        possible_states.append((t_key, val))
+        elif self.currentState.transition_type == "UP":
+            tape_char = current_mem_obj.move_up()
+            current_mem_obj.move_down() # reset position for later
+
+            for t_key, t_val in self.currentState.transitions.items():
+                for val in t_val:
+                    temp_val = val.split("/")
+                    if tape_char == temp_val[0]: # if tape char == the symbol
+                        valid_input = True
+                        possible_states.append((t_key, val))
+        elif self.currentState.transition_type == "DOWN":
+            tape_char = current_mem_obj.move_down()
+            current_mem_obj.move_up() # reset position for later
 
             for t_key, t_val in self.currentState.transitions.items():
                 for val in t_val:
@@ -197,7 +231,7 @@ class Machine:
             next_state = random.choice(possible_states)
         else:
             return False
-        
+
         if self.currentState.transition_type == "R":
             current_mem_obj.READ()
         elif self.currentState.transition_type == "W":
@@ -211,19 +245,25 @@ class Machine:
         elif self.currentState.transition_type == "P":
             self.output_tape.append(next_state[1][0])
         elif self.currentState.transition_type == "RIGHT":
-            replace_char = next_state[1][0].split('/')[1]
+            replace_char = next_state[1].split('/')[1]
             current_mem_obj.RIGHT(replace_char)
         elif self.currentState.transition_type == "LEFT":
-            replace_char = next_state[1][0].split('/')[1]
+            replace_char = next_state[1].split('/')[1]
             current_mem_obj.LEFT(replace_char)
         elif self.currentState.transition_type == "UP":
-            replace_char = next_state[1][0].split('/')[1]
+            replace_char = next_state[1].split('/')[1]
             current_mem_obj.UP(replace_char)
         elif self.currentState.transition_type == "DOWN":
-            replace_char = next_state[1][0].split('/')[1]
+            replace_char = next_state[1].split('/')[1]
             current_mem_obj.DOWN(replace_char)
 
         # update current state to the next state
         for state in self.stateList:
             if state.name == next_state[0]:
                 self.currentState = state
+
+    def update_input_tape(self, list_input):
+        for mem in self.memory:
+            if mem.name == self.input_tape.name:
+                mem.tape = list_input
+                self.input_tape = mem

@@ -39,16 +39,17 @@ class GUI(ctk.CTk):
 
     def get_string_input(self):
         input_string = "#" + self.input_string_tb.get("1.0",'end-1c') + "#"
-        self.machine.input_tape.tape = [char for char in input_string]
         self.machine.output_tape = []
-        self.machine.currentState = self.machine.initial_state
-        self.current_state_label.configure(text=f"Current State: {self.machine.initial_state.name}")
         self.machine.input_tape.reset_pos()
         self.machine.current_input = 0
         self.machine.current_output = 0
         for mem in self.machine.memory:
             mem.reset()
             mem.reset_pos()
+
+        self.machine.update_input_tape([char for char in input_string])
+        self.machine.currentState = self.machine.initial_state
+        self.current_state_label.configure(text=f"Current State: {self.machine.initial_state.name}")
         
         self.update_input_tape()
         self.update_output_tape()
@@ -71,7 +72,7 @@ class GUI(ctk.CTk):
             elif self.machine.memory[_id].get_type() == "TAPE":
                 mem_tape.delete("1.0", tk.END)
                 input_text = self.machine.memory[_id].tape.copy()
-                input_text[self.machine.memory[_id].current_position] = f"|{self.machine.memory[_id].current_position}|"
+                input_text[self.machine.memory[_id].current_position] = f"|{self.machine.memory[_id].tape[self.machine.memory[_id].current_position]}|"
                 mem_tape.insert(tk.END, ''.join(input_text))
             elif self.machine.memory[_id].get_type() == "STACK":
                 mem_tape.delete("1.0", tk.END)

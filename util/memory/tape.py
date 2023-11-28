@@ -26,7 +26,7 @@ class TAPE:
         return self.tape[self.current_position]
 
     def ensure_size(self):
-        if self.current_position == len(self.tape):
+        if self.current_position >= len(self.tape):
             self.tape.append('#')
         elif self.current_position < 0:
             self.tape.insert(0, '#')
