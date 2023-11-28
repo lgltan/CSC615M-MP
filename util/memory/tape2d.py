@@ -9,29 +9,41 @@ class TAPE_2D:
         return self.tape[self.current_row][self.current_col]
 
     def move_left(self):
-        self.current_col = max(0, self.current_col - 1)
+        self.current_col = self.current_col - 1
         self.ensure_columns()
+        return self.tape[self.current_row][self.current_col]
 
     def move_right(self):
-        self.current_col = min(len(self.tape[0]) - 1, self.current_col + 1)
+        self.current_col = self.current_col + 1
         self.ensure_columns()
+        return self.tape[self.current_row][self.current_col]
 
     def move_up(self):
-        self.current_row = max(0, self.current_row - 1)
+        self.current_row = self.current_row - 1
         self.ensure_rows()
+        self.ensure_columns()
+        return self.tape[self.current_row][self.current_col]
 
     def move_down(self):
-        self.current_row = min(len(self.tape) - 1, self.current_row + 1)
+        self.current_row = self.current_row + 1
         self.ensure_rows()
+        self.ensure_columns()
+        return self.tape[self.current_row][self.current_col]
 
     def ensure_columns(self):
-        if self.current_col == len(self.tape[0]):
-            for row in self.tape:
-                row.append('#')
+        while self.current_col >= len(self.tape[0]):
+            self.tape[self.current_row].append("#")
+        while self.current_col < 0:
+            self.current_col = self.current_col + 1
+            self.tape[self.current_row].insert(0, "#")
 
     def ensure_rows(self):
-        if self.current_row == len(self.tape):
-            self.tape.append(['#'] * len(self.tape[0]))
+        while self.current_row >= len(self.tape[0]):
+            self.current_row = self.current_row + 1
+            self.tape.append(["#"])
+        while self.current_row < 0:
+            self.current_row = self.current_row + 1
+            self.tape.insert(0, ["#"])
 
     def write(self, symbol):
         self.tape[self.current_row][self.current_col] = symbol

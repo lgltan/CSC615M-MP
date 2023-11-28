@@ -11,7 +11,7 @@ class Machine:
     memory = []
     stateList = []
     currentState = None
-    input_tape = []
+    input_tape = None
     current_input = 0
     output_tape = []
     current_output = 0
@@ -25,11 +25,20 @@ class Machine:
             elif mem_type == "QUEUE":
                 self.memory.append(QUEUE(mem_name))
             elif mem_type == "TAPE":
-                self.memory.append(TAPE(mem_name))
+                temp_holder = TAPE(mem_name)
+                if self.input_tape == None:
+                    self.input_tape = temp_holder
+                self.memory.append(temp_holder)
             elif mem_type == "2D_TAPE":
-                self.memory.append(TAPE_2D(mem_name))
+                temp_holder = TAPE_2D(mem_name)
+                if self.input_tape == None:
+                    self.input_tape = temp_holder.tape[0]
+                self.memory.append(temp_holder)
             else:
                 print(f"ERR: Invalid Auxiliary Memory name {mem_type}")
+        
+        if self.input_tape == None:
+            self.input_tape = TAPE("input_tape")
 
         found_accept = [string for string in logic_arr if "accept" in string]
 
@@ -100,13 +109,6 @@ class Machine:
     def addState(self, state):
         self.stateList.append(state)
 
-    def reset(self):
-        self.currentState = self.initial_state
-        self.input_tape = []
-        self.current_input = 0
-        self.output_tape = []
-        self.current_output = 0
-
     def get_state_memory_obj(self):
         for mem_obj in self.memory:
             if mem_obj.name == self.currentState.memory_object:
@@ -143,14 +145,14 @@ class Machine:
                     valid_input = True
                     possible_states.append((t_key, t_val))
         elif self.currentState.transition_type == "S" or self.currentState.transition_type == "SR":
-            scan_char = self.input_tape[self.current_input + 1]
+            scan_char = self.input_tape.move_right()
             for t_key, t_val in self.currentState.transitions.items():
                 for val in t_val:
                     if scan_char == val:
                         valid_input = True
                         possible_states.append((t_key, val))
         elif self.currentState.transition_type == "SL":
-            scan_char = self.input_tape[self.current_input - 1]
+            scan_char = self.input_tape.move_left()
             for t_key, t_val in self.currentState.transitions.items():
                 for val in t_val:
                     if scan_char == val:
@@ -162,12 +164,13 @@ class Machine:
                     valid_input = True
                     possible_states.append((t_key, t_val))
         elif self.currentState.transition_type == "RIGHT":
-            current_mem_obj.move_right()
-            tape_char = current_mem_obj.get_current_symbol()
+            tape_char = current_mem_obj.move_right()
+            current_mem_obj.move_left() # reset position for later
 
             for t_key, t_val in self.currentState.transitions.items():
                 for val in t_val:
-                    if tape_char == val:
+                    temp_val = val.split("/")
+                    if tape_char == temp_val[0]: # if tape char == the symbol
                         valid_input = True
                         possible_states.append((t_key, val))
 
@@ -195,13 +198,17 @@ class Machine:
         elif self.currentState.transition_type == "P":
             self.output_tape.append(next_state[1])
         elif self.currentState.transition_type == "RIGHT":
-            current_mem_obj.RIGHT(next_state[1])
+            replace_char = next_state[1].split('/')[1]
+            current_mem_obj.RIGHT(replace_char)
         elif self.currentState.transition_type == "LEFT":
-            current_mem_obj.LEFT(next_state[1])
+            replace_char = next_state[1].split('/')[1]
+            current_mem_obj.LEFT(replace_char)
         elif self.currentState.transition_type == "UP":
-            current_mem_obj.UP(next_state[1])
+            replace_char = next_state[1].split('/')[1]
+            current_mem_obj.UP(replace_char)
         elif self.currentState.transition_type == "DOWN":
-            current_mem_obj.DOWN(next_state[1])
+            replace_char = next_state[1].split('/')[1]
+            current_mem_obj.DOWN(replace_char)
 
         # update current state to the next state
         for state in self.stateList:

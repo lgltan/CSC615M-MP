@@ -8,24 +8,26 @@ class TAPE:
         return self.tape[self.current_position]
 
     def move_left(self):
-        self.current_position = max(0, self.current_position - 1)
+        self.current_position = self.current_position - 1
         self.ensure_size()
+        return self.tape[self.current_position]
 
     def move_right(self):
-        self.current_position = min(len(self.tape) - 1, self.current_position + 1)
+        self.current_position = self.current_position + 1
         self.ensure_size()
+        return self.tape[self.current_position]
 
     def ensure_size(self):
         if self.current_position == len(self.tape):
             self.tape.append('#')
+        elif self.current_position < 0:
+            self.tape.insert(0, '#')
 
     def write(self, symbol):
         self.tape[self.current_position] = symbol
 
     def print_tape(self):
-        line = ''.join(self.tape)
-        line = line[:self.current_position] + '[' + line[self.current_position] + ']' + line[self.current_position + 1:]
-        print(line)
+        print(self.tape)
 
     def RIGHT(self, input_val):
         self.move_right()

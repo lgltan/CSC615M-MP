@@ -38,9 +38,8 @@ class GUI(ctk.CTk):
         self.run_frame.pack(pady=0, padx=0, fill="both", expand=True)
 
     def get_string_input(self):
-        input_string = self.input_string_tb.get("1.0",'end-1c')
-        self.machine.reset()
-        self.machine.input_tape = [char for char in input_string]
+        input_string = "#" + self.input_string_tb.get("1.0",'end-1c') + "#"
+        self.machine.input_tape.tape = [char for char in input_string]
         
         self.update_input_tape()
         self.update_output_tape()
@@ -56,16 +55,14 @@ class GUI(ctk.CTk):
         for _id, mem_tape in enumerate(self.aux_mem_list):
             if self.machine.memory[_id].get_type() == "TAPE_2D":
                 mem_tape[1].delete("1.0", tk.END)
-                if 0 <= current_input < len(self.machine.input_tape):
-                    input_text = self.machine.memory[_id].tape[self.machine.memory[_id].current_row].copy()
-                    input_text[self.machine.memory[_id].current_col] = f"|{self.machine.memory[_id].tape[self.machine.memory[_id].current_row][self.machine.memory[_id].current_col]}|"
-                    self.input_tape_tb.insert(tk.END, ''.join(input_text))
+                input_text = self.machine.memory[_id].tape[self.machine.memory[_id].current_row].copy()
+                input_text[self.machine.memory[_id].current_col] = f"|{self.machine.memory[_id].tape[self.machine.memory[_id].current_row][self.machine.memory[_id].current_col]}|"
+                self.input_tape_tb.insert(tk.END, ''.join(input_text))
             elif self.machine.memory[_id].get_type() == "TAPE":
                 mem_tape[1].delete("1.0", tk.END)
-                if 0 <= current_input < len(self.machine.input_tape):
-                    input_text = self.machine.memory[_id].tape.copy()
-                    input_text[self.machine.memory[_id].current_position] = f"|{self.machine.memory[_id].current_position}|"
-                    self.input_tape_tb.insert(tk.END, ''.join(input_text))
+                input_text = self.machine.memory[_id].tape.copy()
+                input_text[self.machine.memory[_id].current_position] = f"|{self.machine.memory[_id].current_position}|"
+                self.input_tape_tb.insert(tk.END, ''.join(input_text))
             elif self.machine.memory[_id].get_type() == "STACK":
                 mem_tape[1].delete("1.0", tk.END)
                 self.input_tape_tb.insert(tk.END, ''.join(self.machine.memory[_id].stack))
