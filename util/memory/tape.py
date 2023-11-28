@@ -9,10 +9,12 @@ class TAPE:
 
     def SCAN_RIGHT(self):
         self.current_position = self.current_position + 1
+        self.ensure_size()
         return self.tape[self.current_position]
 
     def SCAN_LEFT(self):
         self.current_position = self.current_position - 1
+        self.ensure_size()
         return self.tape[self.current_position]
 
     def move_left(self):

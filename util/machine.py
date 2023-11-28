@@ -94,7 +94,7 @@ class Machine:
                 memory_object = in_parenthesis[0]
                 in_parenthesis.remove(in_parenthesis[0])
             else: # PRINT
-                memory_object = self.input_tape
+                memory_object = self.input_tape.name
 
             state = State(stateName=state_name, transition_type=transition_type, memory_object=memory_object)
 

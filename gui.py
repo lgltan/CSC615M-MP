@@ -85,18 +85,21 @@ class GUI(ctk.CTk):
             mem_tape.configure(state="disabled")
 
     def update_input_tape(self):
+        self.output_tape_tb.configure(state="normal")
         self.input_tape_tb.delete("1.0", tk.END)
         if 0 <= self.machine.current_input < len(self.machine.input_tape.tape):
             input_text = self.machine.input_tape.tape.copy()
             input_text[self.machine.current_input] = f"|{self.machine.input_tape.tape[self.machine.current_input]}|"
             self.input_tape_tb.insert(tk.END, ''.join(input_text))
+        self.output_tape_tb.configure(state="disabled")
 
     def update_output_tape(self):
+        self.output_tape_tb.configure(state="normal")
         self.output_tape_tb.delete("1.0", tk.END)
         if 0 <= self.machine.current_output < len(self.machine.output_tape):
             output_text = self.machine.output_tape.copy()
-            output_text[self.machine.current_output] = f"|{self.machine.output_tape[self.machine.current_output]}|"
             self.output_tape_tb.insert(tk.END, ''.join(output_text))
+        self.output_tape_tb.configure(state="disabled")
 
     def generate_state_diagram(self):
         # Create canvas
