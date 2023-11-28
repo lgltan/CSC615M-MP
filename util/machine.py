@@ -233,6 +233,9 @@ class Machine:
         else:
             return False
 
+        if len(possible_states) > 1:
+            print(f"Possible Routes: {possible_states}")
+
         if self.currentState.transition_type == "R":
             current_mem_obj.READ()
         elif self.currentState.transition_type == "W":
