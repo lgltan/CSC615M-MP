@@ -40,6 +40,15 @@ class GUI(ctk.CTk):
     def get_string_input(self):
         input_string = "#" + self.input_string_tb.get("1.0",'end-1c') + "#"
         self.machine.input_tape.tape = [char for char in input_string]
+        self.machine.output_tape = []
+        self.machine.currentState = self.machine.initial_state
+        self.current_state_label.configure(text=f"Current State: {self.machine.initial_state.name}")
+        self.machine.input_tape.reset_pos()
+        self.machine.current_input = 0
+        self.machine.current_output = 0
+        for mem in self.machine.memory:
+            mem.reset()
+            mem.reset_pos()
         
         self.update_input_tape()
         self.update_output_tape()
@@ -53,28 +62,32 @@ class GUI(ctk.CTk):
 
     def update_mem_tapes(self):
         for _id, mem_tape in enumerate(self.aux_mem_list):
+            mem_tape.configure(state="normal")
             if self.machine.memory[_id].get_type() == "TAPE_2D":
-                mem_tape[1].delete("1.0", tk.END)
+                mem_tape.delete("1.0", tk.END)
                 input_text = self.machine.memory[_id].tape[self.machine.memory[_id].current_row].copy()
                 input_text[self.machine.memory[_id].current_col] = f"|{self.machine.memory[_id].tape[self.machine.memory[_id].current_row][self.machine.memory[_id].current_col]}|"
-                self.input_tape_tb.insert(tk.END, ''.join(input_text))
+                mem_tape.insert(tk.END, ''.join(input_text))
             elif self.machine.memory[_id].get_type() == "TAPE":
-                mem_tape[1].delete("1.0", tk.END)
+                mem_tape.delete("1.0", tk.END)
                 input_text = self.machine.memory[_id].tape.copy()
                 input_text[self.machine.memory[_id].current_position] = f"|{self.machine.memory[_id].current_position}|"
-                self.input_tape_tb.insert(tk.END, ''.join(input_text))
+                mem_tape.insert(tk.END, ''.join(input_text))
             elif self.machine.memory[_id].get_type() == "STACK":
-                mem_tape[1].delete("1.0", tk.END)
-                self.input_tape_tb.insert(tk.END, ''.join(self.machine.memory[_id].stack))
+                mem_tape.delete("1.0", tk.END)
+                input_text = ''.join(self.machine.memory[_id].stack)
+                mem_tape.insert(tk.END, input_text)
             elif self.machine.memory[_id].get_type() == "QUEUE":
-                mem_tape[1].delete("1.0", tk.END)
-                self.input_tape_tb.insert(tk.END, ''.join(self.machine.memory[_id].QUEUE))
+                mem_tape.delete("1.0", tk.END)
+                input_text = ''.join(self.machine.memory[_id].queue)
+                mem_tape.insert(tk.END, input_text)
+            mem_tape.configure(state="disabled")
 
     def update_input_tape(self):
         self.input_tape_tb.delete("1.0", tk.END)
-        if 0 <= self.machine.current_input < len(self.machine.input_tape):
-            input_text = self.machine.input_tape.copy()
-            input_text[self.machine.current_input] = f"|{self.machine.input_tape[self.machine.current_input]}|"
+        if 0 <= self.machine.current_input < len(self.machine.input_tape.tape):
+            input_text = self.machine.input_tape.tape.copy()
+            input_text[self.machine.current_input] = f"|{self.machine.input_tape.tape[self.machine.current_input]}|"
             self.input_tape_tb.insert(tk.END, ''.join(input_text))
 
     def update_output_tape(self):
@@ -134,7 +147,7 @@ class GUI(ctk.CTk):
             aux_mem_tb = ctk.CTkTextbox(master=self.run_frame, width=600, height=20, state="disabled")
             aux_mem_tb.pack(pady=10)
 
-            self.aux_mem_list.append((aux_mem_label, aux_mem_tb))
+            self.aux_mem_list.append(aux_mem_tb)
 
         self.current_state_label = ctk.CTkLabel(master=self.run_frame, text="Current State: None", font=("Roboto", 16), anchor=ctk.W)
         self.current_state_label.pack(pady=2)

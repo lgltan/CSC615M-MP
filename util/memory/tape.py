@@ -7,6 +7,14 @@ class TAPE:
     def get_current_symbol(self):
         return self.tape[self.current_position]
 
+    def SCAN_RIGHT(self):
+        self.current_position = self.current_position + 1
+        return self.tape[self.current_position]
+
+    def SCAN_LEFT(self):
+        self.current_position = self.current_position - 1
+        return self.tape[self.current_position]
+
     def move_left(self):
         self.current_position = self.current_position - 1
         self.ensure_size()
@@ -39,3 +47,9 @@ class TAPE:
 
     def get_type(self):
         return "TAPE"
+
+    def reset(self):
+        self.tape = ['#']
+    
+    def reset_pos(self):
+        self.current_position = 0

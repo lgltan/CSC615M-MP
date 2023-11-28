@@ -15,6 +15,7 @@ class Machine:
     current_input = 0
     output_tape = []
     current_output = 0
+    initial_state = None
 
     def __init__(self, data_arr, logic_arr):
         # init auxiliary memory
@@ -52,7 +53,6 @@ class Machine:
         for logic in logic_arr:
             state = None
             transition_type = None
-            memory_object = None
 
             # get state_name
             transition_list = logic.split("]")
@@ -87,9 +87,13 @@ class Machine:
             in_parenthesis = re.findall(r'\((.*?)\)', logic)
 
             # get memory object
-            if "READ" in logic or "WRITE" in logic or "RIGHT" in logic or "LEFT" in logic or "UP" in logic or "DOWN" in logic:
+            if "SCAN" in logic or "SCAN RIGHT" in logic or "SCAN LEFT" in logic:
+                memory_object = self.input_tape.name
+            elif "READ" in logic or "WRITE" in logic or "RIGHT" in logic or "LEFT" in logic or "UP" in logic or "DOWN" in logic:
                 memory_object = in_parenthesis[0]
                 in_parenthesis.remove(in_parenthesis[0])
+            else: # PRINT
+                memory_object = self.input_tape
 
             state = State(stateName=state_name, transition_type=transition_type, memory_object=memory_object)
 
@@ -113,10 +117,11 @@ class Machine:
         for mem_obj in self.memory:
             if mem_obj.name == self.currentState.memory_object:
                 return mem_obj
-        print("ERR: Memory Object not found")
+        print("WARNING: Memory Object not found")
         return None
 
     def next_state(self):
+        print(f"Current State: {self.currentState.name}")
         # Check if the current state is accepting or rejecting
         if self.currentState.name == "accept":
             print("Machine has accepted the input.")
@@ -129,11 +134,15 @@ class Machine:
         possible_states = []
 
         current_mem_obj = self.get_state_memory_obj()
+
+        if not current_mem_obj:
+            current_mem_obj = self.input_tape
+
         valid_input = False
 
         # get all possible next states for NDA
         if self.currentState.transition_type == "R":
-            read_char = current_mem_obj.READ()
+            read_char = current_mem_obj.READ_TOP()
             for t_key, t_val in self.currentState.transitions.items():
                 for val in t_val:
                     if read_char == val:
@@ -145,6 +154,7 @@ class Machine:
                     valid_input = True
                     possible_states.append((t_key, t_val))
         elif self.currentState.transition_type == "S" or self.currentState.transition_type == "SR":
+            self.current_input = self.current_input + 1
             scan_char = self.input_tape.move_right()
             for t_key, t_val in self.currentState.transitions.items():
                 for val in t_val:
@@ -152,6 +162,7 @@ class Machine:
                         valid_input = True
                         possible_states.append((t_key, val))
         elif self.currentState.transition_type == "SL":
+            self.current_input = self.current_input - 1
             scan_char = self.input_tape.move_left()
             for t_key, t_val in self.currentState.transitions.items():
                 for val in t_val:
@@ -190,24 +201,26 @@ class Machine:
         if self.currentState.transition_type == "R":
             current_mem_obj.READ()
         elif self.currentState.transition_type == "W":
-            current_mem_obj.WRITE(next_state[1])
-        elif self.currentState.transition_type == "S" or self.currentState.transition_type == "SR":
-            self.current_input = self.current_input + 1
+            current_mem_obj.WRITE(next_state[1][0])
+        elif self.currentState.transition_type == "S":
+            current_mem_obj.SCAN_RIGHT()
+        elif self.currentState.transition_type == "SR":
+            current_mem_obj.SCAN_RIGHT()
         elif self.currentState.transition_type == "SL":
-            self.current_input = self.current_input - 1
+            current_mem_obj.SCAN_LEFT()
         elif self.currentState.transition_type == "P":
-            self.output_tape.append(next_state[1])
+            self.output_tape.append(next_state[1][0])
         elif self.currentState.transition_type == "RIGHT":
-            replace_char = next_state[1].split('/')[1]
+            replace_char = next_state[1][0].split('/')[1]
             current_mem_obj.RIGHT(replace_char)
         elif self.currentState.transition_type == "LEFT":
-            replace_char = next_state[1].split('/')[1]
+            replace_char = next_state[1][0].split('/')[1]
             current_mem_obj.LEFT(replace_char)
         elif self.currentState.transition_type == "UP":
-            replace_char = next_state[1].split('/')[1]
+            replace_char = next_state[1][0].split('/')[1]
             current_mem_obj.UP(replace_char)
         elif self.currentState.transition_type == "DOWN":
-            replace_char = next_state[1].split('/')[1]
+            replace_char = next_state[1][0].split('/')[1]
             current_mem_obj.DOWN(replace_char)
 
         # update current state to the next state

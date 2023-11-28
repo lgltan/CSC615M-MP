@@ -1,6 +1,9 @@
 def process_input(input_data):
     section_split = input_data.split(".")
 
+    data_arr = None
+    logic_arr = None
+
     while "" in section_split:
         section_split.remove("")
 
@@ -10,20 +13,26 @@ def process_input(input_data):
         elif "LOGIC" in section:
             logic_arr = section
 
-    data_arr = data_arr.replace("DATA", "").split("\n")
-    logic_arr = logic_arr.replace("LOGIC", "").split("\n")
+    if data_arr:
+        data_arr = data_arr.replace("DATA", "").split("\n")
+    else:
+        print("WARNING: There is no DATA section.")
+    if logic_arr:
+        logic_arr = logic_arr.replace("LOGIC", "").split("\n")
+    else:
+        print("WARNING: There is no LOGIC section.")
 
-    while "" in data_arr:
-        data_arr.remove("")
+    if data_arr:
+        while "" in data_arr:
+            data_arr.remove("")
 
-    while "" in logic_arr:
-        logic_arr.remove("")
+    if logic_arr:
+        while "" in logic_arr:
+            logic_arr.remove("")
 
-    if len(data_arr) == 0:
-        print("WARNING: No .DATA given")
-    if len(logic_arr) == 0:
-        print("WARNING: No .LOGIC given")
-
+    if not data_arr:
+        data_arr = []
+        
     return process_data(data_arr), logic_arr
 
 def process_data(data_arr):

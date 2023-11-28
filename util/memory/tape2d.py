@@ -8,6 +8,14 @@ class TAPE_2D:
     def get_current_symbol(self):
         return self.tape[self.current_row][self.current_col]
 
+    def SCAN_RIGHT(self):
+        self.current_col = self.current_col + 1
+        return self.tape[0][self.current_col]
+
+    def SCAN_LEFT(self):
+        self.current_col = self.current_col - 1
+        return self.tape[0][self.current_col]
+
     def move_left(self):
         self.current_col = self.current_col - 1
         self.ensure_columns()
@@ -73,3 +81,10 @@ class TAPE_2D:
 
     def get_type(self):
         return "TAPE_2D"
+
+    def reset(self):
+        self.tape = [['#']]
+
+    def reset_pos(self):
+        self.current_row = 0
+        self.current_col = 0
